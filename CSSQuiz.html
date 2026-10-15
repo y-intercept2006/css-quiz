@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Written Exam Interactive Reviewer</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct: #22c55e;
+      --incorrect: #ef4444;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 760px; width: 100%; }
+    
+    header { margin-bottom: 24px; text-align: center; }
+    h1 { font-size: 1.6rem; color: var(--accent); margin-bottom: 8px; }
+    p.subtitle { color: var(--text-muted); font-size: 0.9rem; }
+
+    .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    select, button { padding: 10px 14px; background: var(--card-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
+    button:hover, select:hover { border-color: var(--accent); }
+
+    .score-banner { background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+    .score-value { font-size: 1.1rem; font-weight: bold; color: var(--accent); }
+
+    .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
+    .q-number { font-size: 0.8rem; color: var(--accent); font-weight: bold; margin-bottom: 6px; text-transform: uppercase; }
+    .q-text { font-size: 1rem; font-weight: 600; margin-bottom: 16px; line-height: 1.4; }
+
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn { width: 100%; text-align: left; padding: 12px 16px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; transition: all 0.2s; cursor: pointer; }
+    .option-btn:hover:not(:disabled) { border-color: var(--accent); background: #1e293b; }
+    
+    .option-btn.correct { background: rgba(34, 197, 94, 0.2) !important; border-color: var(--correct) !important; color: #4ade80; }
+    .option-btn.incorrect { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--incorrect) !important; color: #f87171; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Computer System Servicing (CSS) Exam</h1>
+    <p class="subtitle">Interactive Reviewer • Pages 1 to 7</p>
+  </header>
+
+  <div class="controls">
+    <select id="sectionFilter" onchange="filterSection()">
+      <option value="all">All Pages (Full Exam)</option>
+      <option value="1">Page 1: Network & System Basics</option>
+      <option value="2">Page 2: Diagnostics & Storage</option>
+      <option value="3">Page 3: Protocols & IP Classes</option>
+      <option value="4">Page 4: Architecture & Troubleshooting</option>
+      <option value="5">Page 5: Hardware & Cabling</option>
+      <option value="6">Page 6: Web Standards & Network Terms</option>
+      <option value="7">Page 7: Advanced Hardware & Tools</option>
+    </select>
+    <button onclick="resetQuiz()">Reset Progress</button>
+  </div>
+
+  <div class="score-banner">
+    <span>Score Progress</span>
+    <span class="score-value" id="scoreDisplay">0 / 0</span>
+  </div>
+
+  <div id="quizContainer"></div>
+</div>
+
+<script>
+const quizData = [
+  // PAGE 1
+  { section: 1, q: "Which device forwards data packets between computer networks?", options: ["Switch", "Router", "Hub", "Repeater"], answer: 1 },
+  { section: 1, q: "What standard specification is represented by the Wi-Fi trademark?", options: ["IEEE 802.3", "IEEE 802.11", "IEEE 802.15", "IEEE 802.1X"], answer: 1 },
+  { section: 1, q: "Which network type connects devices together in one physical location?", options: ["WAN", "MAN", "LAN", "SAN"], answer: 2 },
+  { section: 1, q: "What network type interconnects multiple local area networks?", options: ["PAN", "WAN", "VLAN", "CAN"], answer: 1 },
+  { section: 1, q: "Which software utility prevents, detects, and removes possible threats?", options: ["Firewall", "Anti-virus software", "Device Manager", "Firmware"], answer: 1 },
+  { section: 1, q: "A network where 2 or more PCs connect and share without a separate server is a:", options: ["Client-server network", "Peer-to-peer network", "VPN", "Domain"], answer: 1 },
+  { section: 1, q: "What enables a virtual machine to communicate over a physical network?", options: ["MAC address", "Provider address", "Loopback address", "Subnet mask"], answer: 1 },
+  { section: 1, q: "Which standard protects unauthorized wireless network access using passwords?", options: ["WPA2 – Personal", "WEP", "MAC Filtering", "IPsec"], answer: 0 },
+  { section: 1, q: "Which specifies user rights, privileges, and cabling capability controls?", options: ["DHCP", "Access Control List (ACL)", "NAT", "DNS"], answer: 1 },
+  { section: 1, q: "What term describes an attacker or insider stealing data for ransom or blackmail?", options: ["Phishing", "Information extortion", "Spoofing", "Sniffing"], answer: 1 },
+  { section: 1, q: "What compound is used to prevent CPU overheating?", options: ["Solder paste", "Thermal paste", "Silicon grease", "Dielectric gel"], answer: 1 },
+  { section: 1, q: "What is the maximum cable length for standard USB 2.0?", options: ["3 meters", "5 meters", "10 meters", "15 meters"], answer: 1 },
+  { section: 1, q: "A software program permanently stored inside read-only memory is called:", options: ["Shareware", "Firmware", "Middleware", "Malware"], answer: 1 },
+  { section: 1, q: "An exact digital file copy representing an optical disk image is known as an:", options: ["EXE file", "ISO image", "DLL file", "SYS file"], answer: 1 },
+  { section: 1, q: "What is the minimum RAM requirement for Windows 10?", options: ["512MB / 1GB", "1 GB for 32-bit or 2 GB for 64-bit", "2GB / 4GB", "4GB / 8GB"], answer: 1 },
+  { section: 1, q: "Which extension of Microsoft Management Console manages hardware devices?", options: ["Task Manager", "Device Manager", "Disk Management", "Event Viewer"], answer: 1 },
+  { section: 1, q: "What is the volt rating of the yellow wire in an ATX power supply?", options: ["+3.3 Volts", "+5 Volts", "12 Volts", "-12 Volts"], answer: 2 },
+  { section: 1, q: "A Cisco console cable (YOST cable) uses which configuration?", options: ["Straight-through", "Crossover", "Rollover", "Coaxial"], answer: 2 },
+  { section: 1, q: "On Windows Server 2008, what does a yellow LAN indicator signify?", options: ["Gigabit connected", "No connectivity", "Cable unplugged", "IP Conflict"], answer: 1 },
+  { section: 1, q: "How many status LEDs are typically found on a Network Interface Card (NIC)?", options: ["1 light", "2 lights", "3 lights", "4 lights"], answer: 1 },
+  { section: 1, q: "How many client devices can typically connect to a router?", options: ["100", "250", "500", "1024"], answer: 1 },
+  { section: 1, q: "What device acts as a bridge between wireless clients and a wired network?", options: ["Access Point", "Modem", "Gateway", "Switch"], answer: 0 },
+  { section: 1, q: "A logical sub-network group configured on a physical switch is a:", options: ["WAN", "Virtual LAN (VLAN)", "VPN", "CAN"], answer: 1 },
+  { section: 1, q: "The time lapse between data received and sent over a network is called:", options: ["Throughput", "Latency", "Bandwidth", "Jitter"], answer: 1 },
+  { section: 1, q: "Pushing hardware component limits to extremes is known as a:", options: ["POST test", "Stress test", "Loopback test", "Benchmark"], answer: 1 },
+
+  // PAGE 2
+  { section: 2, q: "Which security accreditation tracks compliance continuously over time?", options: ["Initial audit", "continuous assessment", "Penetration test", "Static scan"], answer: 1 },
+  { section: 2, q: "Which Windows Server feature reduces media file serving costs by archiving files?", options: ["FTP", "remote storage service", "SAN", "Active Directory"], answer: 1 },
+  { section: 2, q: "What allows client access point to at least 1 application across clustered servers?", options: ["Load balancer", "virtual cluster server", "Failover pool", "Domain controller"], answer: 1 },
+  { section: 2, q: "Which utility tool tests host connectivity across an IP network?", options: ["TRACERT", "PING", "NSLOOKUP", "NETSTAT"], answer: 1 },
+  { section: 2, q: "In legacy systems, which key enters BIOS setup?", options: ["F1", "F5", "F8", "F12"], answer: 1 },
+  { section: 2, q: "Which Windows mode starts up with minimal drivers to troubleshoot booting?", options: ["safe mode", "Normal mode", "Recovery console", "Audit mode"], answer: 0 },
+  { section: 2, q: "Which startup option boots directly into the recovery partition?", options: ["System Restore", "repair computer", "Command Prompt", "Clean Boot"], answer: 1 },
+  { section: 2, q: "Dividing a single physical hard drive into multiple manageable drives creates:", options: ["Physical drives", "logical drives", "Dynamic RAID", "Virtual disks"], answer: 1 },
+  { section: 2, q: "Which 2 interface types communicate between hard drives and motherboards?", options: ["USB and FireWire", "ATA and SATA", "PCIe and NVMe", "SCSI and SAS"], answer: 1 },
+  { section: 2, q: "The spider-like interconnection of millions of web pages online is the:", options: ["Intranet", "WWW or World Wide Web", "Extranet", "ARPANET"], answer: 1 },
+  { section: 2, q: "What is the common standard color for USB 3.0 ports?", options: ["Black", "White", "blue", "Red"], answer: 2 },
+  { section: 2, q: "What type of non-volatile memory is used in SSD storage?", options: ["DRAM", "flash memory", "SRAM", "EEPROM"], answer: 1 },
+  { section: 2, q: "Originally, BIOS settings on standard PCs were stored on:", options: ["RAM", "ROM", "Hard Disk", "Flash Drive"], answer: 1 },
+  { section: 2, q: "What is the minimum hard disk drive capacity required for Windows 10?", options: ["8GB/12GB", "16GB for 32bit OS / 20GB for 64bit OS", "32GB/64GB", "50GB"], answer: 1 },
+  { section: 2, q: "Rare Windows device driver settings and configurations are stored in the:", options: ["System32", "Registry", "Bootloader", "Program Files"], answer: 1 },
+  { section: 2, q: "What voltage rating is carried by the red wire in a power supply?", options: ["+3.3V", "+5volt or 5V", "+12V", "-5V"], answer: 1 },
+  { section: 2, q: "A cable wired with T568A on one end and T568B on the other is a:", options: ["Straight-through", "cross over", "Rollover", "Coaxial"], answer: 1 },
+  { section: 2, q: "On Windows 7, a red 'X' over the LAN icon signifies a:", options: ["Duplicate IP", "problem with the LAN driver", "High latency", "Firewall error"], answer: 1 },
+  { section: 2, q: "Which hardware component connects a computer over a local network?", options: ["Sound card", "NIC/network interface card", "Video card", "RAID controller"], answer: 1 },
+  { section: 2, q: "An Internal Relay Chat (IRC) server operates as a:", options: ["Database server", "real-time communication server", "Web server", "Mail server"], answer: 1 },
+  { section: 2, q: "Ensuring information is changed only in an authorized manner maintains:", options: ["Confidentiality", "integrity", "Availability", "Authenticity"], answer: 1 },
+  { section: 2, q: "Which command line utility displays active TCP connections and routing tables?", options: ["IPCONFIG", "netstat", "TRACERT", "NBTSTAT"], answer: 1 },
+
+  // PAGE 3
+  { section: 3, q: "What is the maximum cable length for USB 3.0 non-twisted pair?", options: ["1 meter", "3 meters", "5 meters", "7 meters"], answer: 1 },
+  { section: 3, q: "The M.2 form factor is primarily used for which component?", options: ["Graphics card", "storage drive", "Power supply", "Sound card"], answer: 1 },
+  { section: 3, q: "What hardware component retains BIOS settings and real-time clock data?", options: ["Flash ROM", "RTC / NVRAM", "Boot sector", "Cache"], answer: 1 },
+  { section: 3, q: "What digital file serves as a substitute to load CD/DVD optical disks?", options: ["ZIP file", "ISO file", "IMG file", "TAR file"], answer: 1 },
+  { section: 3, q: "Which Windows edition allows restricting other programs on the computer?", options: ["Home", "Professional", "Windows Ultimate", "Starter"], answer: 2 },
+  { section: 3, q: "In which Windows folder can standard device drivers be found?", options: ["Program Files", "System 32", "Temp", "Users"], answer: 1 },
+  { section: 3, q: "What is the standard voltage output for red and yellow wires on Molex connectors?", options: ["red = 3.3V, yellow = 12V", "red = 5V, yellow = 5V (or 12V rail)", "red = 12V, yellow = 5V", "red = 12V, yellow = 12V"], answer: 1 },
+  { section: 3, q: "Which cabling configuration connects computers to hubs and switches?", options: ["Crossover", "straight through", "Rollover", "Loopback"], answer: 1 },
+  { section: 3, q: "What is another common name for a Network Interface Controller?", options: ["Sound card", "LAN card", "Display card", "Modem"], answer: 1 },
+  { section: 3, q: "What IPv4 class does the address 192.168.0.1 belong to?", options: ["Class A", "Class B", "Class C", "Class D"], answer: 2 },
+  { section: 3, q: "What process does NAT perform when routing network address requests?", options: ["Encrypting", "forwarding", "Filtering", "Blocking"], answer: 1 },
+  { section: 3, q: "Which wired/wireless connection concept uses radio frequencies?", options: ["Bluetooth", "wireless fidelity", "Infrared", "Zigbee"], answer: 1 },
+  { section: 3, q: "A network covering corporate buildings in a local area is a:", options: ["LAN", "campus area network", "MAN", "WAN"], answer: 1 },
+  { section: 3, q: "A Metropolitan Area Network (MAN) spans approximately what distance?", options: ["1 to 2 km", "metropolitan area network or MAN (5 to 50 km)", "100 km", "500 km"], answer: 1 },
+  { section: 3, q: "Who is assigned to monitor network security and user permissions?", options: ["Systems analyst", "network administrator", "Database admin", "Webmaster"], answer: 1 },
+  { section: 3, q: "Which server stores user documents with a large memory capacity?", options: ["Print server", "file server", "Web server", "Proxy server"], answer: 1 },
+  { section: 3, q: "What address is used by a virtual machine to communicate over a physical network?", options: ["MAC address", "provider address", "Loopback", "Subnet mask"], answer: 1 },
+  { section: 3, q: "Connecting to a server requiring complex setup and additional security uses:", options: ["WPA2 - Personal", "WPA2 - enterprise", "WEP", "WPS"], answer: 1 },
+  { section: 3, q: "When network messages arrive at a server, what designation forwards them to services?", options: ["IP address", "PORT number", "MAC address", "Subnet prefix"], answer: 1 },
+  { section: 3, q: "Automated software that executes commands upon receiving specific input is a:", options: ["Worm", "BOT", "Trojan", "Spyware"], answer: 1 },
+  { section: 3, q: "A set of rules describing how network hardware and software interact is a:", options: ["communication protocol", "System policy", "Firmware script", "Topology"], answer: 0 },
+  { section: 3, q: "Viruses, worms, Trojan horses, and active web scripts are categorized as:", options: ["Utility software", "malicious code", "Firmware updates", "Drivers"], answer: 1 },
+
+  // PAGE 4
+  { section: 4, q: "Which network hierarchy layer operates the internet backbone infrastructure?", options: ["Access", "Distribution", "core", "Edge"], answer: 2 },
+  { section: 4, q: "What security list allows only specific hardware devices on a Wi-Fi network?", options: ["IP Filtering", "MAC address filtering", "Port Forwarding", "SSID Hiding"], answer: 1 },
+  { section: 4, q: "A network connecting short-range personal devices using signals or infrared is a:", options: ["WLAN", "wireless personal area network/PAN", "WWAN", "CAN"], answer: 1 },
+  { section: 4, q: "What allows users to move around a physical coverage area line continuously?", options: ["WPAN", "wireless local area network/WLAN", "SAN", "MAN"], answer: 1 },
+  { section: 4, q: "Which enterprise tool provides heterogeneous backup and recovery?", options: ["System Restore", "net backup", "Disk Management", "Windows Update"], answer: 1 },
+  { section: 4, q: "Which server allows centralized domain management and administration?", options: ["File server", "directory server", "Web server", "Print server"], answer: 1 },
+  { section: 4, q: "What situation occurs when an information asset suffers damage or disclosure?", options: ["LOS", "DoS", "Buffer Overflow", "Data Redundancy"], answer: 0 },
+  { section: 4, q: "What standard makes connecting a router to wireless devices faster and easier?", options: ["WPA3", "WPS", "MAC Cloning", "UPnP"], answer: 1 },
+  { section: 4, q: "Which protocol is most efficient for transferring large files over TCP?", options: ["HTTP", "file transfer protocol", "SMTP", "SNMP"], answer: 1 },
+  { section: 4, q: "What technique is used to gain unauthorized access by sending forged source IP addresses?", options: ["Sniffing", "spoofing", "Phishing", "Extortion"], answer: 1 },
+  { section: 4, q: "What NTFS feature enforces storage volume limits on specific user sets?", options: ["BitLocker", "file system quota", "Compression", "Defrag"], answer: 1 },
+  { section: 4, q: "Which Windows Server feature migrates active workloads between cluster targets?", options: ["Load balancing", "failover", "Replication", "Mirroring"], answer: 1 },
+  { section: 4, q: "Which log files record performance statistics for real-time monitoring?", options: ["Security log", "counter logs", "Application log", "Event log"], answer: 1 },
+  { section: 4, q: "Which recovery console command examines hard drives for errors and repairs them?", options: ["FORMAT", "chkdsk", "DISKPART", "SFC"], answer: 1 },
+  { section: 4, q: "A computer operating system functions fully without boot constraints during:", options: ["Safe Mode", "normal booting", "Clean Boot", "Recovery Mode"], answer: 1 },
+  { section: 4, q: "Which Windows Update setting installs the latest updates automatically?", options: ["Manual", "fully automatic", "Disabled", "Notify only"], answer: 1 },
+  { section: 4, q: "A physically damaged cluster area on a hard drive platter is called a:", options: ["Soft error", "bad sector", "Corrupt driver", "Fragment"], answer: 1 },
+  { section: 4, q: "What occurs when 2 or more devices on the same network share one IP address?", options: ["Subnet error", "IP address conflict", "Gateway failure", "DNS error"], answer: 1 },
+  { section: 4, q: "Which hardware component replays frequent error messages while moving files?", options: ["RAM", "hard disk", "Motherboard", "Optical Drive"], answer: 1 },
+  { section: 4, q: "Which recovery console command writes a new master boot record?", options: ["FIXBOOT", "fixmbr", "CHKDSK", "BOOTCFG"], answer: 1 },
+
+  // PAGE 5
+  { section: 5, q: "A symmetrical 24-pin reversible connector standard supporting data and video is:", options: ["Micro-USB", "USB-C thunder bolts", "USB Type-A", "Mini-HDMI"], answer: 1 },
+  { section: 5, q: "What motherboard microchip facilitates communication between CPU and devices?", options: ["Bus interface", "chipset", "Socket", "Transducer"], answer: 1 },
+  { section: 5, q: "Which BIOS/UEFI component is used specifically to manage graphics overclocking and voltage?", options: ["UEFI Boot", "voltage basic input/output system or VBIOS", "ACPI", "CMOS"], answer: 1 },
+  { section: 5, q: "What is the minimum byte capacity required for a Windows 10 bootable flash drive?", options: ["2GB", "4GB", "8GB", "16GB"], answer: 2 },
+  { section: 5, q: "What is the minimum RAM requirement for Server 2012 R2?", options: ["256MB", "512mb", "1GB", "2GB"], answer: 1 },
+  { section: 5, q: "Where are Windows Update security controls located in Windows 7 options?", options: ["Task Manager", "Settings", "Registry Editor", "Device Manager"], answer: 1 },
+  { section: 5, q: "What voltage rails are supplied by the ATX 12V main P1 power connector?", options: ["1.5V, 3.3V, 5V", "3.3V, 5V, 12V", "5V, 12V, 24V", "12V, -12V, 48V"], answer: 1 },
+  { section: 5, q: "Which standard governs telecommunications cabling in commercial buildings?", options: ["IEEE 802.3", "ANSI/TIA 568", "ISO 9001", "RFC 1918"], answer: 1 },
+  { section: 5, q: "In networking terminology, a piece of information transferred across a network is a:", options: ["Gateway", "connection", "Subnet", "Port"], answer: 1 },
+  { section: 5, q: "What IPv4 address class does 172.168.1.x belong to?", options: ["Class A", "class B", "Class C", "Class D"], answer: 1 },
+  { section: 5, q: "Which command line utility certifies Active Directory learning by testing DNS?", options: ["PING", "NSLOOKUP", "TRACERT", "IPCONFIG"], answer: 1 },
+  { section: 5, q: "Which protocol is used by Active Directory to access directory data?", options: ["HTTP", "LDAP", "FTP", "SNMP"], answer: 1 },
+  { section: 5, q: "Which performance tool display measures real-time system statistics?", options: ["Task Scheduler", "View Current Activity", "Event Log", "Services"], answer: 1 },
+  { section: 5, q: "What type of peripheral expansion card contains a MAC address?", options: ["Sound Card", "Network Interface Card", "Video Card", "Capture Card"], answer: 1 },
+  { section: 5, q: "In structured cabling, what main patch panel links every telecommunication room?", options: ["Horizontal Cross Connect", "Vertical Cross Connect", "Work Area Outlet", "Patch Bay"], answer: 1 },
+  { section: 5, q: "An enclosed or semi-enclosed channel designed to protect router cabling and wire is a:", options: ["Conduit", "Raceway", "Duct", "Cable Tray"], answer: 1 },
+  { section: 5, q: "What protective rubber boot is installed over crimped patch cable ends?", options: ["Sleeve", "Boot", "Clip", "Shield"], answer: 1 },
+  { section: 5, q: "What test verifies port communication by sending and receiving data on the same port?", options: ["Ping test", "Loopback Test", "Continuity test", "Attenuation test"], answer: 1 },
+  { section: 5, q: "What device or software intercepts and monitors traffic over a network?", options: ["Packet Analyzer", "Firewall", "Proxy Server", "Repeater"], answer: 0 },
+  { section: 5, q: "What resistance reading should a multimeter show for an open (broken) wire?", options: ["0 Ohms", "Infinite Ohms", "50 Ohms", "100 Ohms"], answer: 1 },
+
+  // PAGE 6
+  { section: 6, q: "Which protocol transfers text, graphics, images, and audio on the World Wide Web?", options: ["FTP", "Hypertext Transfer Protocol", "SMTP", "SNMP"], answer: 1 },
+  { section: 6, q: "Which method grants traditional server access using block protocol over TCP/IP?", options: ["FTP Server", "Windows Folder Sharing", "WebDAV", "ADFS"], answer: 1 },
+  { section: 6, q: "Which 2 command line utilities export and import directory object information?", options: ["DISKPART and CHKDSK", "LDIFDE.EXE and CSVDE.EXE", "IPCONFIG and NETSTAT", "NBTSTAT and TRACERT"], answer: 1 },
+  { section: 6, q: "Which network component allows data flow between discrete networks?", options: ["Switch", "Gateway", "Repeater", "Hub"], answer: 1 },
+  { section: 6, q: "What electrical quantity is measured when testing continuity on a twisted pair cable?", options: ["Voltage", "Resistance", "Current", "Capacitance"], answer: 1 },
+  { section: 6, q: "When flash drives and external hard drives are stored physically on-site, it is a:", options: ["Cloud Backup", "Local Backup", "Offsite Backup", "Remote Mirror"], answer: 1 },
+  { section: 6, q: "Which recovery tool fixes and scans issues that prevent computer booting repeatedly?", options: ["System Restore", "Startup Repair", "Disk Defrag", "Task Manager"], answer: 1 },
+  { section: 6, q: "Which diagnostic environment troubleshoot an unbootable operating system?", options: ["MSCONFIG", "Windows Recovery Environment", "Safe Mode Prompt", "Device Manager"], answer: 1 },
+  { section: 6, q: "Which electronic component discharges stored electrical energy upon replacement?", options: ["Resistor", "Capacitor", "Transistor", "Diode"], answer: 1 },
+  { section: 6, q: "Which current wireless networking standard handles high-speed folder sharing?", options: ["802.11a", "802.11b", "802.11g", "802.11n"], answer: 3 },
+  { section: 6, q: "What type of router connects an internal network to an external WAN network?", options: ["Core Router", "Edge Router", "Wireless Bridge", "Access Router"], answer: 1 },
+  { section: 6, q: "The maximum data transfer rate capacity of an internet connection is:", options: ["Latency", "Bandwidth", "Jitter", "Throughput"], answer: 1 },
+  { section: 6, q: "A specialized high-speed subnetwork interconnecting storage devices with servers is a:", options: ["LAN", "Storage Area Network", "MAN", "VPN"], answer: 1 },
+  { section: 6, q: "Telecommunications equipment located directly on a client site connected to an ISP is:", options: ["Core Equipment", "Customer Premises Equipment", "ISP Backbone", "Virtual Terminal"], answer: 1 },
+  { section: 6, q: "The security process of recognizing and confirming a user identity is:", options: ["Authorization", "Authentication", "Accounting", "Encryption"], answer: 1 },
+  { section: 6, q: "Which server operates between end users and backend database servers?", options: ["File Server", "Application Server", "DHCP Server", "DNS Server"], answer: 1 },
+  { section: 6, q: "Applying specific user permissions and resource privileges is known as:", options: ["Access Control", "Encryption", "Auditing", "Authentication"], answer: 0 },
+  { section: 6, q: "In legacy network designations, 10BASE36 indicates 10 Mbps up to what length?", options: ["360 meters", "3600 meters", "36 kilometers", "3.6 meters"], answer: 1 },
+  { section: 6, q: "What system filters incoming/outgoing network traffic based on security tools?", options: ["Router", "Firewall", "Switch", "Hub"], answer: 1 },
+  { section: 6, q: "What term describes a period when a system or server is unavailable?", options: ["Uptime", "Downtime", "Latency", "Overdrive"], answer: 1 },
+
+  // PAGE 7
+  { section: 7, q: "What is the trade branding for the IEEE 1394 interface standard?", options: ["Thunderbolt", "FireWire", "USB", "eSATA"], answer: 1 },
+  { section: 7, q: "Which motherboard microchip manages data communication between CPU and I/O devices?", options: ["Northbridge", "Input/Output Controller Hub", "Memory Controller", "Clock Generator"], answer: 1 },
+  { section: 7, q: "What UEFI/BIOS security tracking feature assists in locating stolen laptop devices?", options: ["BitLocker", "LoJack", "Defender", "TPM Lock"], answer: 1 },
+  { section: 7, q: "Which command-line tool is used for partitioning disks and creating bootable flash drives?", options: ["CHKDSK", "DiskPart", "FORMAT", "FDISK"], answer: 1 },
+  { section: 7, q: "What is the minimum RAM requirement specified for Server 2008 R2?", options: ["256 MB", "512 MB", "1 GB", "2 GB"], answer: 1 },
+  { section: 7, q: "What happens to the display in Windows 7 when the video driver is not installed?", options: ["Full HD displays", "Only standard video is displayed", "Screen stays black", "Safe mode only"], answer: 1 },
+  { section: 7, q: "What voltage reading is shown on a multimeter across a shorted diode?", options: ["0.7 Volt", "Zero Volt", "5 Volts", "Infinite Volts"], answer: 1 },
+  { section: 7, q: "The process of physically joining two separate copper wire cables together is:", options: ["Crimping", "Cable Splicing", "Punchdown", "Patching"], answer: 1 },
+  { section: 7, q: "What device enables multiple serial devices to connect across an Ethernet network?", options: ["Print Server", "Terminal Server", "Proxy Server", "Gateway"], answer: 1 },
+  { section: 7, q: "What IPv4 address class does 10.10.10.1 belong to?", options: ["Class A", "Class B", "Class C", "Class D"], answer: 0 },
+  { section: 7, q: "Which Windows Server feature restricts specific file types from being saved in folders?", options: ["Disk Quotas", "File Screening", "Shadow Copies", "DFS"], answer: 1 },
+  { section: 7, q: "What clustering technology balances incoming client network traffic load across servers?", options: ["SAN", "Network Load Balancing", "Round Robin DNS", "DirectAccess"], answer: 1 },
+  { section: 7, q: "What type of log file overwrites old records when full so file size stops growing?", options: ["Linear Log", "Circular Log", "Event Log", "Trace Log"], answer: 1 },
+  { section: 7, q: "What component can be upgraded on a PC to receive and transmit stronger wireless signals?", options: ["Motherboard", "Network Card", "Router CPU", "Power Supply"], answer: 1 },
+  { section: 7, q: "Which service manages automatic central distribution of IP addresses?", options: ["DNS", "DHCP", "WINS", "NAT"], answer: 1 },
+  { section: 7, q: "Which command-line tool looks up IP addresses, hostnames, or domain details?", options: ["IPCONFIG", "NSLOOKUP", "TRACERT", "ARP"], answer: 1 },
+  { section: 7, q: "If a system resets its system time and BIOS settings when unplugged, what failed?", options: ["Hard drive", "CMOS Battery Failure", "RAM corruption", "Power supply"], answer: 1 },
+  { section: 7, q: "What diagnostic tool checks hard drive S.M.A.R.T. status (Good, Caution, Bad)?", options: ["Speccy", "CrystalDiskInfo", "CPU-Z", "MemTest86"], answer: 1 },
+  { section: 7, q: "In network troubleshooting, what step comes immediately after planning a fix?", options: ["Identify problem", "Implementing the Solution", "Document findings", "Test theory"], answer: 1 },
+  { section: 7, q: "The process of scanning, identifying, diagnosing, and repairing software errors is:", options: ["Cabling", "Software Troubleshooting", "Compiling", "Hardware assembly"], answer: 1 }
+];
+
+let userAnswers = {};
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  const section = document.getElementById('sectionFilter').value;
+  container.innerHTML = '';
+
+  const filtered = section === 'all' 
+    ? quizData 
+    : quizData.filter(item => item.section == section);
+
+  let correctCount = 0;
+  let answeredCount = 0;
+
+  filtered.forEach((item, index) => {
+    const originalIndex = quizData.indexOf(item);
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const qNum = document.createElement('div');
+    qNum.className = 'q-number';
+    qNum.innerText = `Page ${item.section} • Question ${index + 1}`;
+
+    const qText = document.createElement('div');
+    qText.className = 'q-text';
+    qText.innerText = item.q;
+
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'options';
+
+    const selected = userAnswers[originalIndex];
+    if (selected !== undefined) answeredCount++;
+    if (selected === item.answer) correctCount++;
+
+    item.options.forEach((opt, optIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerText = `${String.fromCharCode(65 + optIdx)}) ${opt}`;
+
+      if (selected !== undefined) {
+        btn.disabled = true;
+        if (optIdx === item.answer) btn.classList.add('correct');
+        if (selected === optIdx && selected !== item.answer) btn.classList.add('incorrect');
+      } else {
+        btn.onclick = () => selectAnswer(originalIndex, optIdx);
+      }
+
+      optsDiv.appendChild(btn);
+    });
+
+    card.appendChild(qNum);
+    card.appendChild(qText);
+    card.appendChild(optsDiv);
+    container.appendChild(card);
+  });
+
+  document.getElementById('scoreDisplay').innerText = `${correctCount} / ${filtered.length} (Answered: ${answeredCount})`;
+}
+
+function selectAnswer(qIndex, optIndex) {
+  userAnswers[qIndex] = optIndex;
+  renderQuiz();
+}
+
+function filterSection() {
+  renderQuiz();
+}
+
+function resetQuiz() {
+  userAnswers = {};
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
