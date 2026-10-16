@@ -28,7 +28,7 @@
     select, button { padding: 10px 14px; background: var(--card-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
     button:hover, select:hover { border-color: var(--accent); }
 
-    .score-banner { background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+    .score-banner { background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-align: center; border: 1px solid var(--border); }
     .score-value { font-size: 1.1rem; font-weight: bold; color: var(--accent); }
 
     .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
@@ -41,6 +41,27 @@
     
     .option-btn.correct { background: rgba(34, 197, 94, 0.2) !important; border-color: var(--correct) !important; color: #4ade80; }
     .option-btn.incorrect { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--incorrect) !important; color: #f87171; }
+
+    /* RJ45 Wiring Section Styles */
+    .wire-slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 12px; }
+    .slot { background: #0f172a; border: 2px dashed var(--border); border-radius: 8px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 6px; }
+    .slot-num { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; }
+    .wire-palette { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding: 12px; background: #0f172a; border-radius: 8px; border: 1px solid var(--border); }
+    
+    .wire-btn { padding: 8px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px solid var(--border); }
+    .wire-chip { width: 100%; height: 60px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; text-align: center; cursor: pointer; }
+
+    /* Wire Colors */
+    .wg { background: linear-gradient(135deg, #ffffff 50%, #22c55e 50%); color: #000; border: 1px solid #22c55e; }
+    .g  { background: #22c55e; color: #fff; }
+    .wo { background: linear-gradient(135deg, #ffffff 50%, #f97316 50%); color: #000; border: 1px solid #f97316; }
+    .b  { background: #3b82f6; color: #fff; }
+    .wb { background: linear-gradient(135deg, #ffffff 50%, #3b82f6 50%); color: #000; border: 1px solid #3b82f6; }
+    .o  { background: #f97316; color: #fff; }
+    .wbr{ background: linear-gradient(135deg, #ffffff 50%, #78350f 50%); color: #000; border: 1px solid #78350f; }
+    .br { background: #78350f; color: #fff; }
+
+    .action-btn { margin-top: 14px; width: 100%; padding: 12px; background: var(--accent); color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -48,7 +69,7 @@
 <div class="container">
   <header>
     <h1>Computer System Servicing (CSS) Exam</h1>
-    <p class="subtitle">Interactive Reviewer • Pages 1 to 7</p>
+    <p class="subtitle">Interactive Reviewer • Pages 1 to 7, Acronyms & RJ45 Wiring</p>
   </header>
 
   <div class="controls">
@@ -61,6 +82,8 @@
       <option value="5">Page 5: Hardware & Cabling</option>
       <option value="6">Page 6: Web Standards & Network Terms</option>
       <option value="7">Page 7: Advanced Hardware & Tools</option>
+      <option value="acronyms">Acronyms Quiz (35 Items)</option>
+      <option value="wiring">RJ45 Color Coding Wiring Tool</option>
     </select>
     <button onclick="resetQuiz()">Reset Progress</button>
   </div>
@@ -236,15 +259,75 @@ const quizData = [
   { section: 7, q: "If a system resets its system time and BIOS settings when unplugged, what failed?", options: ["Hard drive", "CMOS Battery Failure", "RAM corruption", "Power supply"], answer: 1 },
   { section: 7, q: "What diagnostic tool checks hard drive S.M.A.R.T. status (Good, Caution, Bad)?", options: ["Speccy", "CrystalDiskInfo", "CPU-Z", "MemTest86"], answer: 1 },
   { section: 7, q: "In network troubleshooting, what step comes immediately after planning a fix?", options: ["Identify problem", "Implementing the Solution", "Document findings", "Test theory"], answer: 1 },
-  { section: 7, q: "The process of scanning, identifying, diagnosing, and repairing software errors is:", options: ["Cabling", "Software Troubleshooting", "Compiling", "Hardware assembly"], answer: 1 }
+  { section: 7, q: "The process of scanning, identifying, diagnosing, and repairing software errors is:", options: ["Cabling", "Software Troubleshooting", "Compiling", "Hardware assembly"], answer: 1 },
+
+  // ACRONYMS (35 ITEMS)
+  { section: "acronyms", q: "RAM stands for:", options: ["Random Access Memory", "Read Access Media", "Rapid Action Module", "Run Access Memory"], answer: 0 },
+  { section: "acronyms", q: "ROM stands for:", options: ["Read-Only Memory", "Random Optical Media", "Run-Only Module", "Real-Time Online Memory"], answer: 0 },
+  { section: "acronyms", q: "HDD stands for:", options: ["High Density Disk", "Hard Disk Drive", "Hybrid Drive Device", "Host Data Disk"], answer: 1 },
+  { section: "acronyms", q: "SSD stands for:", options: ["System Storage Device", "Solid State Drive", "Serial Storage Disk", "Static System Drive"], answer: 1 },
+  { section: "acronyms", q: "USB stands for:", options: ["Universal Serial Bus", "Unified System Bus", "Universal Storage Board", "United Serial Base"], answer: 0 },
+  { section: "acronyms", q: "PS2 (Port) stands for:", options: ["Personal System/2", "Power Slot 2", "Parallel Socket 2", "Peripheral System 2"], answer: 0 },
+  { section: "acronyms", q: "FDD stands for:", options: ["Fast Data Disk", "Floppy Disk Drive", "Flash Drive Device", "Formatted Disk Directory"], answer: 1 },
+  { section: "acronyms", q: "SATA stands for:", options: ["System Advanced Technology Attachment", "Serial Advanced Technology Attachment", "Sequential Array Technology Access", "Synchronous ATA"], answer: 1 },
+  { section: "acronyms", q: "IDE stands for:", options: ["Integrated Drive Electronics", "Internal Data Engine", "Interface Device Expansion", "Integrated Digital Emulation"], answer: 0 },
+  { section: "acronyms", q: "PATA stands for:", options: ["Parallel Advanced Technology Attachment", "Primary Advanced Technology Access", "Peripheral ATA", "Portable ATA"], answer: 0 },
+  { section: "acronyms", q: "PCI stands for:", options: ["Peripheral Component Interconnect", "Personal Computer Interface", "Primary Component Integration", "Parallel Control Interface"], answer: 0 },
+  { section: "acronyms", q: "ISA stands for:", options: ["Industry Standard Architecture", "Integrated System Access", "Internal Socket Adapter", "International Standard Array"], answer: 0 },
+  { section: "acronyms", q: "CPU stands for:", options: ["Central Processing Unit", "Computer Power Unit", "Core Processing Utility", "Central Program Control"], answer: 0 },
+  { section: "acronyms", q: "VGA stands for:", options: ["Video Graphics Array", "Virtual Graphics Adapter", "Visual Graphic Acceleration", "Vector Graphics Architecture"], answer: 0 },
+  { section: "acronyms", q: "LGA stands for:", options: ["Land Grid Array", "Logic Gate Adapter", "Local Grid Area", "Linear Grid Array"], answer: 0 },
+  { section: "acronyms", q: "BIOS stands for:", options: ["Basic Input/Output System", "Binary Integrated Operating System", "Board Interface Option System", "Basic Internal Output Script"], answer: 0 },
+  { section: "acronyms", q: "CMOS stands for:", options: ["Complementary Metal-Oxide-Semiconductor", "Central Memory Operating System", "Computer Media Output Standard", "Control Module Option System"], answer: 0 },
+  { section: "acronyms", q: "AGP stands for:", options: ["Accelerated Graphics Port", "Advanced Graphic Processor", "Array Graphics Platform", "Automated Graphic Bus"], answer: 0 },
+  { section: "acronyms", q: "LCD stands for:", options: ["Liquid Crystal Display", "Light Control Device", "Linear Crystal Diode", "Logic Circuit Display"], answer: 0 },
+  { section: "acronyms", q: "LED stands for:", options: ["Light Emitting Diode", "Linear Energy Display", "Logic Emitting Device", "Low Emission Diode"], answer: 0 },
+  { section: "acronyms", q: "ASCII stands for:", options: ["American Standard Code for Information Interchange", "Automated System Code for Internal Integration", "Advanced Standard Circuit Interface", "Array System Code Information"], answer: 0 },
+  { section: "acronyms", q: "MOBO is short for:", options: ["Motherboard", "Module Board", "Main Output Board", "Memory On Board"], answer: 0 },
+  { section: "acronyms", q: "PGA stands for:", options: ["Pin Grid Array", "Parallel Graphic Adapter", "Peripheral Gate Array", "Primary Grid Architecture"], answer: 0 },
+  { section: "acronyms", q: "WAN stands for:", options: ["Wide Area Network", "Wireless Access Network", "Web Application Network", "World Access Node"], answer: 0 },
+  { section: "acronyms", q: "LAN stands for:", options: ["Local Area Network", "Linear Access Network", "Logic Array Node", "Link Access Network"], answer: 0 },
+  { section: "acronyms", q: "WAP stands for:", options: ["Wireless Access Point", "Wide Access Protocol", "Web Application Port", "Wireless Array Path"], answer: 0 },
+  { section: "acronyms", q: "RJ45 stands for:", options: ["Registered Jack 45", "Routed Jack 45", "Radio Junction 45", "Receptacle Joint 45"], answer: 0 },
+  { section: "acronyms", q: "UTP stands for:", options: ["Unshielded Twisted Pair", "Universal Transfer Port", "Unified Twisted Pipe", "Unregulated Terminal Pair"], answer: 0 },
+  { section: "acronyms", q: "HDMI stands for:", options: ["High-Definition Multimedia Interface", "High Data Media Integration", "Host Display Multimedia Interface", "Hybrid Digital Media Interface"], answer: 0 },
+  { section: "acronyms", q: "WLAN stands for:", options: ["Wireless Local Area Network", "Wide Local Access Network", "Web Local Area Node", "Wired Local Network"], answer: 0 },
+  { section: "acronyms", q: "HTTP stands for:", options: ["Hypertext Transfer Protocol", "High Transfer Terminal Protocol", "Hyperlink Text Process", "Host Transfer Protocol"], answer: 0 },
+  { section: "acronyms", q: "WWW stands for:", options: ["World Wide Web", "Wide Web Window", "World Access Web", "Web Wide World"], answer: 0 },
+  { section: "acronyms", q: "DHCP stands for:", options: ["Dynamic Host Configuration Protocol", "Direct Hardware Control Protocol", "Domain Host Configuration Path", "Digital Host Control Process"], answer: 0 },
+  { section: "acronyms", q: "DNS stands for:", options: ["Domain Name System", "Dynamic Network Service", "Direct Node System", "Digital Name Server"], answer: 0 },
+  { section: "acronyms", q: "ISP stands for:", options: ["Internet Service Provider", "Internal System Protocol", "Integrated Service Path", "Information Server Provider"], answer: 0 }
 ];
 
+// RJ45 Standards & Unorganized/Disorganized Colors
+const wiringStandards = {
+  "T568A": ["White Green", "Green", "White Orange", "Blue", "White Blue", "Orange", "White Brown", "Brown"],
+  "T568B": ["White Orange", "Orange", "White Green", "Blue", "White Blue", "Green", "White Brown", "Brown"]
+};
+
+// Explicitly unorganized palette array
+const unorganizedWireChoices = [
+  "Brown", "White Orange", "Green", "White Blue", "Orange", "White Green", "White Brown", "Blue"
+];
+
+const wireClasses = {
+  "White Green": "wg", "Green": "g", "White Orange": "wo", "Blue": "b",
+  "White Blue": "wb", "Orange": "o", "White Brown": "wbr", "Brown": "br"
+};
+
 let userAnswers = {};
+let currentWiringSlots = { "T568A": Array(8).fill(null), "T568B": Array(8).fill(null) };
+let activeWiringStandard = "T568A";
 
 function renderQuiz() {
   const container = document.getElementById('quizContainer');
   const section = document.getElementById('sectionFilter').value;
   container.innerHTML = '';
+
+  if (section === "wiring") {
+    renderWiringActivity(container);
+    return;
+  }
 
   const filtered = section === 'all' 
     ? quizData 
@@ -260,7 +343,9 @@ function renderQuiz() {
 
     const qNum = document.createElement('div');
     qNum.className = 'q-number';
-    qNum.innerText = `Page ${item.section} • Question ${index + 1}`;
+    qNum.innerText = item.section === 'acronyms' 
+      ? `Acronym Quiz • Question ${index + 1}` 
+      : `Page ${item.section} • Question ${index + 1}`;
 
     const qText = document.createElement('div');
     qText.className = 'q-text';
@@ -298,6 +383,117 @@ function renderQuiz() {
   document.getElementById('scoreDisplay').innerText = `${correctCount} / ${filtered.length} (Answered: ${answeredCount})`;
 }
 
+function renderWiringActivity(container) {
+  document.getElementById('scoreDisplay').innerText = "RJ45 Wiring Practice";
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  
+  card.innerHTML = `
+    <div class="q-number">Color Coding Activity</div>
+    <div class="q-text">Arrange the 8 wires in order for ${activeWiringStandard} (Pin 1 to Pin 8):</div>
+    
+    <div style="margin-bottom: 16px; display: flex; gap: 10px;">
+      <button onclick="switchWiringStandard('T568A')" style="${activeWiringStandard==='T568A'?'border-color:var(--accent);color:var(--accent);':''}">T568-A Standard</button>
+      <button onclick="switchWiringStandard('T568B')" style="${activeWiringStandard==='T568B'?'border-color:var(--accent);color:var(--accent);':''}">T568-B Standard</button>
+    </div>
+
+    <div class="wire-slots" id="slotsGrid"></div>
+
+    <div class="q-text" style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted);">Select wires from the unorganized palette to insert into Pin 1 to Pin 8:</div>
+    <div class="wire-palette" id="wirePalette"></div>
+
+    <button class="action-btn" onclick="checkWiring()">Check ${activeWiringStandard} Order</button>
+    <button onclick="resetCurrentWiring()" style="margin-top:10px; width:100%;">Clear Pin Slots</button>
+  `;
+
+  container.appendChild(card);
+  updateSlotsUI();
+  updatePaletteUI();
+}
+
+function updateSlotsUI() {
+  const grid = document.getElementById('slotsGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+
+  currentWiringSlots[activeWiringStandard].forEach((wire, idx) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    
+    if(wire) {
+      slot.innerHTML = `<span class="slot-num">Pin ${idx+1}</span>
+                        <div class="wire-chip ${wireClasses[wire]}" onclick="removeWireFromSlot(${idx})">${wire}</div>`;
+    } else {
+      slot.innerHTML = `<span class="slot-num">Pin ${idx+1}</span><span style="font-size:0.65rem; color:var(--text-muted)">Empty</span>`;
+    }
+    grid.appendChild(slot);
+  });
+}
+
+function updatePaletteUI() {
+  const palette = document.getElementById('wirePalette');
+  if(!palette) return;
+  palette.innerHTML = '';
+
+  // Render palette in unorganized order
+  unorganizedWireChoices.forEach(wire => {
+    const btn = document.createElement('button');
+    btn.className = `wire-btn ${wireClasses[wire]}`;
+    btn.innerText = wire;
+    btn.onclick = () => addWireToSlot(wire);
+    palette.appendChild(btn);
+  });
+}
+
+function addWireToSlot(wire) {
+  const slots = currentWiringSlots[activeWiringStandard];
+  const emptyIdx = slots.indexOf(null);
+  if (emptyIdx !== -1) {
+    slots[emptyIdx] = wire;
+    updateSlotsUI();
+  }
+}
+
+function removeWireFromSlot(idx) {
+  currentWiringSlots[activeWiringStandard][idx] = null;
+  updateSlotsUI();
+}
+
+function resetCurrentWiring() {
+  currentWiringSlots[activeWiringStandard] = Array(8).fill(null);
+  updateSlotsUI();
+}
+
+function switchWiringStandard(std) {
+  activeWiringStandard = std;
+  renderQuiz();
+}
+
+function checkWiring() {
+  const slots = currentWiringSlots[activeWiringStandard];
+  const correct = wiringStandards[activeWiringStandard];
+  
+  if (slots.includes(null)) {
+    alert("Please fill all 8 pin slots before checking!");
+    return;
+  }
+
+  let isCorrect = true;
+  for (let i = 0; i < 8; i++) {
+    if (slots[i] !== correct[i]) {
+      isCorrect = false;
+      break;
+    }
+  }
+
+  if (isCorrect) {
+    alert(`🎉 Correct! Perfect pinout sequence for ${activeWiringStandard}!`);
+  } else {
+    alert(`❌ Incorrect order. The correct sequence for ${activeWiringStandard} is:\n\n` + correct.map((w, i) => `Pin ${i+1}: ${w}`).join('\n'));
+  }
+}
+
 function selectAnswer(qIndex, optIndex) {
   userAnswers[qIndex] = optIndex;
   renderQuiz();
@@ -309,6 +505,7 @@ function filterSection() {
 
 function resetQuiz() {
   userAnswers = {};
+  currentWiringSlots = { "T568A": Array(8).fill(null), "T568B": Array(8).fill(null) };
   renderQuiz();
 }
 
